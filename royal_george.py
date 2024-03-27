@@ -214,9 +214,6 @@ class Map_gen:
             self.rendered_map += ("  " + str(i) + " ")
         self.rendered_map += ("   X" + '\n')
         return self.rendered_map
-    
-    def fill_map(self, grid_size, hit_coords, miss_coords):
-        
 
 
 # generate enemies
