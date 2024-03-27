@@ -118,13 +118,18 @@ victory_text = "28 August 1782. Well done Ser, your cannons and skilled interven
 def quit_game(user_input):
     user_input = str(user_input).lower()
     if user_input == "q":
-        Draw.cls(self)
+        cls()
         GameState.game = False
         print("quit program")
         sys.exit(0)
 
 
+def cls():
+    os.system("cls" if os.name == "nt" else "clear")
+
 # draw Draws to screen and ask for input
+
+
 class Draw:
     usr_input = ""
 
@@ -139,7 +144,7 @@ class Draw:
         return '[Draw %r, %r, %r, %r, %r]' % (self.intro_image, self.intro_text, self.hit_text, self.cannons, self.need_input)
 
     def draw_screen(self):
-        self.cls()
+        cls()
         # image or map
         print(self.intro_image)
 
@@ -169,9 +174,6 @@ class Draw:
         else:
             Draw.usr_input = input("X, Y: ")
 
-    def cls(self):
-        os.system("cls" if os.name == "nt" else "clear")
-
     def text_layout(self, old_text):
         count = 0
         new_text = ""
@@ -187,6 +189,7 @@ class Draw:
 
 # generate the map for the current level
 class Map_gen:
+    hit_data = {}
 
     def __init__(self):
         self.rendered_map = ""
@@ -194,26 +197,59 @@ class Map_gen:
     def __str__(self):
         return self.rendered_map
 
+    def populate_hit_data(self, grid_size):
+        Map_gen.hit_data = {}
+        length = grid_size
+        hit_lst = []
+        hit_dict = {}
+        for i in range(1, length + 1):
+            for j in range(1, length + 1):
+                hit_lst.append("~")
+            hit_dict[i] = hit_lst
+            hit_lst = []
+        Map_gen.hit_data.update(hit_dict)
+
     def draw_map(self, grid_size):
-        self.grid_size = grid_size
+        temp_hit_data = Map_gen.hit_data.copy()
+        # print(temp_hit_data)
         self.rendered_map = ""
         self.rendered_map += ('\n' + " Y" + '\n')
         self.rendered_map += (" " * 3)
-        self.rendered_map += ("-" * 4 * self.grid_size + "-" + '\n')
-        for i in range(1, self.grid_size + 1):
-            # 1 to i on the Y axis
-            self.rendered_map += (" " + str(i) + " |")
-            for j in range(1, self.grid_size + 1):
-                self.rendered_map += (" ~" + " |")
+        self.rendered_map += ("-" * 4 * grid_size + "-" + '\n')
+        for key, value in temp_hit_data.items():
+            # print(value)
+            self.rendered_map += (" " + str(key) + " |")
+            for i in range(len(value)):
+                self.rendered_map += (" " + value[i] + " |")
             self.rendered_map += ("\n" + " " * 3)
-            for k in range(1, self.grid_size + 1):
+            for j in range(len(value)):
                 self.rendered_map += ("-" * 4)
             self.rendered_map += ("-" + '\n')
         self.rendered_map += (" " * 3)
-        for i in range(1, self.grid_size + 1):
+        for i in range(1, grid_size + 1):
             self.rendered_map += ("  " + str(i) + " ")
         self.rendered_map += ("   X" + '\n')
         return self.rendered_map
+
+    @staticmethod
+    def update_hit(x, y):
+        upd_hit_dict = Map_gen.hit_data.copy()
+        for key, value in upd_hit_dict.items():
+            if key == int(y):
+                value[int(x) - 1] = "X"
+                upd_hit_dict[key] = value
+        Map_gen.hit_data.update(upd_hit_dict)
+
+    @staticmethod
+    def update_miss(x, y):
+        upd_miss_dict = Map_gen.hit_data.copy()
+        for key, value in upd_miss_dict.items():
+            print(key, y)
+            if int(key) == int(y):
+                print("now")
+                value[int(x) - 1] = "O"
+                upd_miss_dict[key] = value
+        Map_gen.hit_data.update(upd_miss_dict)
 
 
 # generate enemies
@@ -262,14 +298,18 @@ class Shoot:
 
                 x_string_clean = self.clean_string(x_string)
                 usr_input_clean = self.clean_string(self.usr_input)
+                input_xy = usr_input_clean.split(",")
+                # print(input_xy)
                 if x_string_clean == usr_input_clean:
                     hit_counter = 1
                     hit_coords = x
             if hit_counter == 1:
+                Map_gen.update_hit(input_xy[0], input_xy[1])
                 hit_text = "Hit at {}".format(self.usr_input)
                 self.ship_coords.remove(hit_coords)
                 GameState.cannon_balls += 1
             elif hit_counter == 0:
+                Map_gen.update_miss(input_xy[0], input_xy[1])
                 hit_text = "Miss at {}".format(self.usr_input)
 
             if GameState.cannon_balls == 0 and self.ship_coords:
@@ -277,11 +317,11 @@ class Shoot:
             elif not self.ship_coords:
                 return True
             else:
-                draw_map_size = map.draw_map(lvl.map_size)
+                map = Map_gen()
+                draw_map = map.draw_map(GameState.map_size)
                 draw_level_text = GameState.level_text
-                # draw_level_text = str(self.ship_coords)
                 draw_cannon_balls = GameState.cannon_balls
-                update = Draw(draw_map_size, draw_level_text,
+                update = Draw(draw_map, draw_level_text,
                               hit_text, draw_cannon_balls, True)
                 quit_game(update.draw_screen())
 
@@ -330,44 +370,49 @@ class GameState:
         GameState.level_text = GameState.lvl_lst[self.level]['intro_text']
 
 
-# before the gameplay loop
-# Initial screen
-intro = Draw(logo, intro_text, "", 0, False)
-intro.draw_screen()
+def main():
+    # before the gameplay loop
+    # Initial screen
+    intro = Draw(logo, intro_text, "", 0, False)
+    intro.draw_screen()
 
-# create level and map objects
-lvl = GameState()
-map = Map_gen()
+    # create level and map objects
+    lvl = GameState()
+    map = Map_gen()
 
-# gameplay loop
-while GameState.game:
-    # create enemies
-    enemy = Ship(lvl.ship_size, lvl.map_size, lvl.ship_quantity)
+    # gameplay loop
+    while GameState.game:
+        # create enemies
+        enemy = Ship(lvl.ship_size, lvl.map_size, lvl.ship_quantity)
 
-    # create map
-    map.draw_map(lvl.map_size)
+        # create map
+        map.populate_hit_data(lvl.map_size)
+        map.draw_map(lvl.map_size)
 
-    # draw screen and input
-    update = Draw(map, lvl.level_text, "", lvl.cannon_balls, True)
-    quit_game(update.draw_screen())
+        # draw screen and input
+        update = Draw(map, lvl.level_text, "", lvl.cannon_balls, True)
+        quit_game(update.draw_screen())
 
-    # calculate hit
-    self = Shoot(enemy.coords)
-    won = self.hit_calculation()
+        # calculate hit
+        self = Shoot(enemy.coords)
+        won = self.hit_calculation()
 
-    if lvl.level >= lvl.levels:
-        update = Draw(victory, "", victory_text, 0, False)
-        update.draw_screen()
-        GameState.game = False
-        break
-    elif won:
-        lvl.next_level()
-    else:
-        update = Draw(loss, "", "Tragically, you have sunk", 0, False)
-        update.draw_screen()
-        GameState.game = False
-        break
+        if lvl.level >= lvl.levels:
+            update = Draw(victory, "", victory_text, 0, False)
+            update.draw_screen()
+            GameState.game = False
+            break
+        elif won:
+            lvl.next_level()
+        else:
+            update = Draw(loss, "", "Tragically, you have sunk", 0, False)
+            update.draw_screen()
+            GameState.game = False
+            break
 
+
+if __name__ == "__main__":
+    main()
 
 '''
 
@@ -378,5 +423,6 @@ Questions:
 
 3: should I make classes or functions for things like Map_gen that doesn't need any classobjects to work with, or is it smart to future / feature proof like that?
 
+4: what order should the classes and functions be for readability?
 
 '''
