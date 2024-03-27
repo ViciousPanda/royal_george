@@ -153,9 +153,11 @@ class Draw:
         if self.cannons > 0:
             print(self.text_layout("you have {} shots left".format(self.cannons)))
 
-        # Debug cheats
+        '''
+        Debug cheats
         if self.cannons > 0:
             print('\n' + str(enemy.coords) + '\n')
+        '''
 
         # ask for feedback
         self.user_input()
@@ -212,6 +214,9 @@ class Map_gen:
             self.rendered_map += ("  " + str(i) + " ")
         self.rendered_map += ("   X" + '\n')
         return self.rendered_map
+    
+    def fill_map(self, grid_size, hit_coords, miss_coords):
+        
 
 
 # generate enemies
@@ -374,6 +379,7 @@ Questions:
 
 2: can I use def __str__(self): in Map_gen to draw the game map?
 
+3: should I make classes or functions for things like Map_gen that doesn't need any classobjects to work with, or is it smart to future / feature proof like that?
 
 
 '''
