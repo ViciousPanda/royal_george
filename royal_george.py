@@ -1,14 +1,14 @@
 from random import randint
-from assets import empty, logo, victory, loss
+from assets import img_victory, img_logo, img_loss, text
 import os
 import sys
 
 """
 Royal George: a console base computergame based on the boardgame Seabattle
-"""
+
+
 
 # game instructions and intro
-
 intro_text = "You are the Chief Gunner at the H.M.S. Royal George. You are to give orders to your gunners in the form of coordinates. Good luck on the battles ahead!"
 level_1_text = "Februari 1757. Oh no, you thought you were fine in port, but a pirate sloop is attacking. It isn't hard to miss."
 level_2_text = "September 1757. At the Raid on Rochefort you are about to be boarded by a French Caravel which is 2 squares long"
@@ -16,23 +16,26 @@ level_3_text = "20 November 1759. In the Battle of Quiberon Bay it is up to HMS 
 level_4_text = ""
 victory_text = "28 August 1782. Well done Ser, your cannons and skilled interventions have keps us alive! After a well deserved rest at the Spithead port in Gibraltar we will set off on a final voyage home..."
 
+"""
 
 # press q to exit game
+
+
 def quit_game(user_input):
     user_input = str(user_input).lower()
     if user_input == "q":
         cls()
         GameState.game = False
-        print("quit program")
+        print("Quit program" + '\n')
         sys.exit(0)
 
 
+# clear screen
 def cls():
     os.system("cls" if os.name == "nt" else "clear")
 
+
 # draw Draws to screen and ask for input
-
-
 class Draw:
     usr_input = ""
 
@@ -59,7 +62,8 @@ class Draw:
 
         # cannonball tracker
         if self.cannons > 0:
-            print(self.text_layout("you have {} shots left".format(self.cannons)))
+            print(self.text_layout(
+                "you have {} shots left".format(self.cannons)) + '\n')
 
         '''
         Debug cheats
@@ -73,7 +77,7 @@ class Draw:
     def user_input(self):
         if not self.need_input:
             print("Press enter to continue...")
-            input()
+            quit_game(input())
         else:
             Draw.usr_input = input("X, Y: ")
 
@@ -193,12 +197,25 @@ class Shoot:
             GameState.cannon_balls -= 1
             hit_counter = 0
             hit_coords = 0
-            self.usr_input = str(Draw.usr_input)
-            quit_game(self.usr_input)
+            input_check = True
+            number_check = []
+            for i in range(1, 100):
+                number_check.append(str(i))
+
+            while input_check:
+                self.usr_input = str(Draw.usr_input)
+                quit_game(self.usr_input)
+                print(self.usr_input)
+                check = self.usr_input.split(',')
+                if check[0] in number_check and check[1] in number_check:
+                    input_check = False
+                else:
+                    print('Wrong input')
+                    GameState.game = False
+                    sys.exit(0)
 
             for x in self.ship_coords:
                 x_string = str(x)
-
                 x_string_clean = self.clean_string(x_string)
                 usr_input_clean = self.clean_string(self.usr_input)
                 input_xy = usr_input_clean.split(",")
@@ -241,10 +258,10 @@ class Shoot:
 # keep track of levels and game data
 class GameState:
     game = True
-    lvl_lst = {1: {'map_size': 1, 'cannon_balls': 1, 'ship_size': 1, 'ship_quantity': 1, 'intro_text': level_1_text},
-               2: {'map_size': 3, 'cannon_balls': 5, 'ship_size': 2, 'ship_quantity': 1, 'intro_text': level_2_text},
-               3: {'map_size': 4, 'cannon_balls': 7, 'ship_size': 3, 'ship_quantity': 1, 'intro_text': level_3_text},
-               4: {'map_size': 5, 'cannon_balls': 11, 'ship_size': 4, 'ship_quantity': 1, 'intro_text': "initiater"}
+    lvl_lst = {1: {'map_size': 1, 'cannon_balls': 1, 'ship_size': 1, 'ship_quantity': 1, 'intro_text': text.level_1_text},
+               2: {'map_size': 3, 'cannon_balls': 5, 'ship_size': 2, 'ship_quantity': 1, 'intro_text': text.level_2_text},
+               3: {'map_size': 4, 'cannon_balls': 7, 'ship_size': 3, 'ship_quantity': 1, 'intro_text': text.level_3_text},
+               4: {'map_size': 5, 'cannon_balls': 11, 'ship_size': 4, 'ship_quantity': 1, 'intro_text': "placeholder"}
                }
     levels = len(lvl_lst)
     cannon_balls = 0
@@ -276,7 +293,7 @@ class GameState:
 def main():
     # before the gameplay loop
     # Initial screen
-    intro = Draw(logo(), intro_text, "", 0, False)
+    intro = Draw(img_logo.logo(), text.intro_text, "Press Q to quit", 0, False)
     intro.draw_screen()
 
     # create level and map objects
@@ -301,14 +318,16 @@ def main():
         won = self.hit_calculation()
 
         if lvl.level >= lvl.levels:
-            update = Draw(victory, "", victory_text, 0, False)
+            update = Draw(img_victory.victory(), "",
+                          text.victory_text, 0, False)
             update.draw_screen()
             GameState.game = False
             break
         elif won:
             lvl.next_level()
         else:
-            update = Draw(loss, "", "Tragically, you have sunk", 0, False)
+            update = Draw(img_loss.loss(), "",
+                          "Tragically, you have sunk", 0, False)
             update.draw_screen()
             GameState.game = False
             break

@@ -2,7 +2,7 @@
 
 #### Video Demo:
 
-![Getting Started](./images/screenshot.jpg)
+![Getting Started](./assets/screenshot.jpg)
 
 #### Description:
 
@@ -22,9 +22,9 @@ Curfew runs with random and os libraries, both being preinstalled with Python 3.
 - a forgiving input queue
 - A graphic display of the map
 - a class based level cycle.
+- dynamic updated map depicting hit and miss
+- a draw method that rewrites the screen after user input
 
 ##### Features that will be nice to have:
 
-- dynamic updated map depicting hit and miss
-- a draw method that rewrites the screen after user input
 - multiple ships in a map

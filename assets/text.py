@@ -1,0 +1,6 @@
+intro_text = "You are the Chief Gunner at the H.M.S. Royal George. You are to give orders to your gunners in the form of coordinates. Good luck on the battles ahead!"
+level_1_text = "Februari 1757. Oh no, you thought you were fine in port, but a pirate sloop is attacking. It isn't hard to miss."
+level_2_text = "September 1757. At the Raid on Rochefort you are about to be boarded by a French Caravel which is 2 squares long"
+level_3_text = "20 November 1759. In the Battle of Quiberon Bay it is up to HMS Royal George as the flagship of the fleet to prevent a landing on our homeland. Ahead there is a French galleon, which is 3 squares long"
+level_4_text = ""
+victory_text = "28 August 1782. Well done Ser, your cannons and skilled interventions have keps us alive! After a well deserved rest at the Spithead port in Gibraltar we will set off on a final voyage home..."
